@@ -55,7 +55,7 @@
         
         <!-- Header Section -->
         <div id="header" class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Workplace Safety Detection</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Worker's Safety Detection</h1>
             <p class="text-gray-500">AI-powered monitoring for helmets and vests.</p>
         </div>
 
@@ -78,12 +78,17 @@
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
                 Upload a Video
             </button>
+            <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+            <button id="image-upload-btn" class="btn btn-secondary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                Upload an Image
+            </button>
         </div>
 
         <!-- Loading Spinner (hidden by default) -->
         <div id="loading-container" class="hidden">
             <div class="loader"></div>
-            <p class="text-gray-600">Processing video...</p>
+            <p id="loading-text" class="text-gray-600">Processing video...</p>
         </div>
 
         <!-- Video Display Area (hidden by default) -->
@@ -130,9 +135,13 @@
         const backBtn = document.getElementById('back-btn');
         const playPauseBtn = document.getElementById('play-pause-btn');
         const newUploadBtn = document.getElementById('new-upload-btn');
+        const imageUploadBtn = document.getElementById('image-upload-btn');
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const loadingText = document.getElementById('loading-text');
 
         // --- State Management ---
         let currentVideoSrc = '';
+        let currentImageUrl = '';
         let isPaused = false;
 
         // --- UI Control Functions ---
@@ -146,6 +155,11 @@
 
         function resetToHome() {
             videoFeed.src = ''; // Stop any active stream
+            if (currentImageUrl) {
+                URL.revokeObjectURL(currentImageUrl); // Free the image blob
+                currentImageUrl = '';
+            }
+            currentVideoSrc = '';
             pauseCanvas.classList.add('hidden');
             videoControls.classList.add('hidden');
             imageWrapper.style.height = ''; // Reset fixed height
@@ -166,11 +180,13 @@
 
         uploadBtn.addEventListener('click', () => videoUploadInput.click());
         newUploadBtn.addEventListener('click', () => videoUploadInput.click());
+        imageUploadBtn.addEventListener('click', () => imageUploadInput.click());
 
         videoUploadInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
                 showScreen(loadingContainer);
+                loadingText.textContent = 'Processing video...';
                 const formData = new FormData();
                 formData.append('video_file', file);
 
@@ -191,6 +207,40 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('There was an error uploading your video.');
+                    showScreen(sourceSelection);
+                });
+            }
+        });
+
+        // --- Image Upload and Detection ---
+        imageUploadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            imageUploadInput.value = ''; // Allow re-selecting the same file
+            if (file) {
+                showScreen(loadingContainer);
+                loadingText.textContent = 'Processing image...';
+                const formData = new FormData();
+                formData.append('image_file', file);
+
+                fetch('/upload_image', { method: 'POST', body: formData })
+                .then(response => {
+                    if (!response.ok) throw new Error('Upload failed.');
+                    return response.blob();
+                })
+                .then(blob => {
+                    if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+                    currentImageUrl = URL.createObjectURL(blob);
+                    currentVideoSrc = '';
+                    isPaused = false;
+                    videoFeed.classList.remove('hidden');
+                    videoFeed.src = currentImageUrl;
+                    // Static image: hide pause / new-video controls
+                    videoControls.classList.add('hidden');
+                    videoFeed.onload = () => showScreen(videoContainer);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error processing your image.');
                     showScreen(sourceSelection);
                 });
             }

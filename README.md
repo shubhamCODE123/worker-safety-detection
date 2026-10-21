@@ -1,8 +1,5 @@
 # Workplace Safety PPE Detection using YOLOv8
 
-**DEMO: https://huggingface.co/spaces/hafizqaim/Workspace-Safety-Detection**
-
-This project provides a real-time object detection system to monitor whether people in a workplace environment are wearing essential Personal Protective Equipment (PPE), specifically safety helmets and vests. The system is built using the YOLOv8 model.
 
 ---
 
@@ -36,13 +33,9 @@ Follow these instructions to set up and run the project on your local machine.
 
 ### Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/hafizqaim/Workspace-Safety-Detection-using-YOLOv8.git](https://github.com/hafizqaim/Workspace-Safety-Detection-using-YOLOv8.git)
-    cd Workspace-Safety-Detection-using-YOLOv8
-    ```
 
-2.  **Create and activate a virtual environment:**
+
+1.  **Create and activate a virtual environment:**
     ```bash
     # For macOS/Linux
     python3 -m venv venv
@@ -53,7 +46,7 @@ Follow these instructions to set up and run the project on your local machine.
     .\venv\Scripts\activate
     ```
 
-3.  **Install the required packages:**
+2.  **Install the required packages:**
     ```bash
     pip install -r requirements.txt
     ```

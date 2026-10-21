@@ -2,8 +2,10 @@ import cv2
 import uuid
 import os
 import shutil
+
+import numpy as np
 from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
 from ultralytics import YOLO
 
 # --- Initialization ---
@@ -130,3 +132,23 @@ def video_feed_upload(session_id: str):
     """Streams video from an uploaded file based on the session ID."""
     # Use StreamingResponse for generator functions
     return StreamingResponse(generate_upload_frames(session_id), media_type="multipart/x-mixed-replace; boundary=frame")
+
+
+# --- Image Upload and Processing ---
+
+@app.post("/upload_image")
+async def upload_image(image_file: UploadFile = File(...)):
+    """Runs PPE detection on a single uploaded image and returns the annotated JPEG."""
+    data = await image_file.read()
+    img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        return JSONResponse(status_code=400, content={"error": "Could not decode the uploaded file as an image."})
+
+    # Run YOLOv8 inference, filtering for helmets (12) and vests (16)
+    results = model(img, classes=[12, 16], verbose=False)
+    annotated_frame = results[0].plot()
+
+    ret, buffer = cv2.imencode('.jpg', annotated_frame)
+    if not ret:
+        return JSONResponse(status_code=500, content={"error": "Could not encode the result image."})
+    return Response(content=buffer.tobytes(), media_type="image/jpeg")

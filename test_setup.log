@@ -1,0 +1,10 @@
+Python: 3.12.4 | packaged by Anaconda, Inc. | (main, Jun 18 2024, 15:03:56) [MSC v.1929 64 bit (AMD64)]
+OpenCV: 5.0.0
+Creating new Ultralytics Settings v0.0.8 file  
+View Ultralytics Settings with 'yolo settings' or at 'C:\Users\ASUS\AppData\Roaming\Ultralytics\settings.json'
+Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/usage/settings.
+Model path: C:\Users\ASUS\OneDrive\Desktop\major project 1\Workspace-Safety-Detection-using-YOLOv8\best.pt exists: True
+Model names: {0: 'Barefoots', 1: 'Ear-protection', 2: 'Harness', 3: 'No_Ear-Protection', 4: 'No_Glasses', 5: 'Sandals', 6: 'boots', 7: 'face_mask', 8: 'face_nomask', 9: 'glasses', 10: 'hand_glove', 11: 'hand_noglove', 12: 'head_helmet', 13: 'head_nohelmet', 14: 'person', 15: 'shoes', 16: 'vest'}
+Inference OK. Boxes: 0
+Saved annotated frame to: C:\Users\ASUS\OneDrive\Desktop\major project 1\Workspace-Safety-Detection-using-YOLOv8\sanity_check_output.jpg
+All headless checks passed.
